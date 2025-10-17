@@ -35,11 +35,11 @@ def build_rag_pipeline():
 
     # --- Load dataset ---
     try:
-        dataset = load_dataset("jkhedri/psychology-dataset", split="train[:300]")
-        print("✅ Loaded dataset: jkhedri/psychology-dataset")
+        dataset = load_dataset("fadodr/mental_health_therapy", split="train[:300]")
+        print("✅ Loaded dataset: fadodr/mental_health_therapy")
     except Exception as e:
         print(f"⚠️ Could not load dataset: {e}")
-        dataset = load_dataset("psychology-dataset", split="train[:300]", token=HF_TOKEN)
+        dataset = load_dataset("mental_health_therapy", split="train[:300]", token=HF_TOKEN)
 
     # --- Inspect dataset structure ---
     print("📊 --- DATASET INFO ---")
@@ -54,7 +54,7 @@ def build_rag_pipeline():
 
     # --- Convert dataset into Document objects ---
     # Use question + helpful response (response_j) as text
-    texts = [f"Q: {d['question']}\nA: {d['response_j']}" for d in dataset if 'response_j' in d and d['response_j'].strip()]
+    texts = [f"Q: {d['instruction']}\nA: {d['input']}" for d in dataset if 'input' in d and d['input'].strip()]
     
     if not texts:
         raise ValueError("No valid text found in dataset to create embeddings!")
