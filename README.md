@@ -163,5 +163,5 @@ If you’d like to improve functionality, fix a bug, or enhance the UI:
 ## 📬 Contact
 
 **Developer:** Mete Kaba  
-**GitHub:** [github.com/metekaba](https://github.com/metekaba)  
-**LinkedIn:** [linkedin.com/in/metekaba](https://linkedin.com/in/metekaba)
+**GitHub:** [github.com/MeteK7](https://github.com/MeteK7)  
+**LinkedIn:** [/www.linkedin.com/in/mete-kaba-89b5221b8](https://www.linkedin.com/in/mete-kaba-89b5221b8)
