@@ -7,6 +7,11 @@ This application blends **retrieval-based reasoning** with **generative capabili
 
 ---
 
+## 🌟 Deploy Link
+
+**SAMPLE DEPLOY LINK:** [github.com/MeteK7](https://github.com/MeteK7)
+---
+
 ## 🌟 Key Highlights
 
 - 🧠 **Dual Answering System:** Choose between dataset-based and reasoning-based answers  

@@ -1,6 +1,5 @@
 import streamlit as st
 from rag_pipeline import build_rag_pipeline
-from langchain.chains import RetrievalQA
 from streamlit_extras.add_vertical_space import add_vertical_space
 
 # --- PAGE CONFIG ---
@@ -10,42 +9,42 @@ st.set_page_config(
     layout="centered",
 )
 
-# --- CUSTOM CSS ---
-st.markdown(
-    """
-    <style>
-        .main-title {
-            text-align: center;
-            font-size: 2.2em;
-            font-weight: 700;
-            color: #4A90E2;
-        }
-        .subtitle {
-            text-align: center;
-            font-size: 1.1em;
-            color: #666;
-            margin-bottom: 1.5em;
-        }
-        .response-box {
-            background-color: #f5f7fa;
-            padding: 1em 1.2em;
-            border-radius: 10px;
-            border: 1px solid #e1e4e8;
-            margin-bottom: 1em;
-        }
-        .doc-box {
-            background-color: #fffbe6;
-            padding: 0.8em 1em;
-            border-radius: 8px;
-            border: 1px solid #f0e68c;
-            margin-bottom: 0.5em;
-        }
-        .doc-q { font-weight: 600; color: #333; }
-        .doc-a { color: #555; }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
+# --- CUSTOM CSS (bubbles + badge) ---
+st.markdown("""
+<style>
+    .main-title { text-align: center; font-size: 2.2em; font-weight: 700; color: #4A90E2; }
+    .subtitle { text-align: center; font-size: 1.1em; color: #666; margin-bottom: 1.5em; }
+    .user-bubble {
+        background: linear-gradient(180deg, #dbe9ff, #c7ddff);
+        padding: 0.75em 1em;
+        border-radius: 12px;
+        margin: 0.5em 0 0.25em 0;
+        max-width: 80%;
+    }
+    .assistant-bubble {
+        background: #f5f7fa;
+        padding: 0.9em 1em;
+        border-radius: 12px;
+        margin: 0.25em 0 0.8em 0;
+        border: 1px solid #e1e4e8;
+        max-width: 80%;
+    }
+    .meta-badge {
+        display: inline-block;
+        font-size: 0.72em;
+        padding: 2px 8px;
+        border-radius: 999px;
+        margin-left: 8px;
+        vertical-align: middle;
+    }
+    .badge-dataset { background: #fff6ea; color: #b36b00; border: 1px solid #f0e68c; }
+    .badge-general { background: #eefcf3; color: #0a7f53; border: 1px solid #bfead4; }
+    .chat-area { max-height: 60vh; overflow-y: auto; padding-right: 8px; }
+    .doc-box { background-color: #fffbe6; padding: 0.6em 0.8em; border-radius: 8px; border: 1px solid #f0e68c; margin-bottom: 0.5em; }
+    .doc-q { font-weight: 600; color: #333; }
+    .doc-a { color: #555; }
+</style>
+""", unsafe_allow_html=True)
 
 # --- HEADER ---
 st.markdown('<div class="main-title">💬 Personalized Lifecycle Companion</div>', unsafe_allow_html=True)
@@ -58,7 +57,7 @@ add_vertical_space(2)
 def load_chain():
     return build_rag_pipeline()
 
-llm, retriever, qa_chain = load_chain()
+llm, retriever, rag_chain = load_chain()
 
 # --- USER SETTINGS ---
 st.markdown("### ⚙️ Answer Selection Settings")
@@ -73,55 +72,50 @@ if not auto_mode:
         ("Dataset-Based Answer", "General Reasoning Answer"),
         index=0
     )
-
 add_vertical_space(1)
 
-# --- INPUT AREA ---
-query = st.text_input("💭 What would you like to ask?", placeholder="e.g. How can I improve my communication skills?")
+# --- SESSION STATE MEMORY ---
+if "chat_history" not in st.session_state:
+    st.session_state.chat_history = []
 
-add_vertical_space(1)
+# Ensure input_box key exists so it persists across runs
+if "input_box" not in st.session_state:
+    st.session_state.input_box = ""
 
-# --- SUBMIT BUTTON ---
-if st.button("Ask 💬"):
-    if query.strip() == "":
-        st.warning("Please enter a question first!")
-    else:
-        with st.spinner("🔍 Thinking and retrieving relevant information..."):
-            # Generate general answer in parallel (for quick switching)
-            response_obj = llm.invoke(query)
-            general_answer = getattr(response_obj, "content", str(response_obj))
+# --- CLEAR CHAT BUTTON HANDLING ---
+# This must come BEFORE the text_input widget is created, to avoid modifying session_state after instantiation.
+if st.button("🧹 Clear Chat", help="Clears conversation history (not persistent)."):
+    st.session_state.chat_history = []
+    st.session_state["input_box"] = ""  # safe reset before widget renders
+    st.experimental_rerun()
 
-            # --- Determine which answer to show ---
-            show_dataset = True
-            docs = []
-            rag_answer = ""
+# --- LAYOUT: chat area + input at bottom ---
+chat_col = st.container()
 
-            if auto_mode:
-                # Retrieve dataset-based answer
-                docs = retriever.get_relevant_documents(query)
-                rag_answer = qa_chain.run(query)
+# Render chat area (so it updates live on each run)
+with chat_col:
+    st.markdown("## 💬 Conversation")
+    chat_area = st.container()
+    with chat_area:
+        # Render each turn in order
+        for i, turn in enumerate(st.session_state.chat_history):
+            # User bubble (left)
+            st.markdown(f'<div class="user-bubble">🧑 You: {turn["user"]}</div>', unsafe_allow_html=True)
 
-                fallback_keywords = ["cannot answer", "no information", "based on the context", "i'm sorry"]
-                show_dataset = not (any(kw in rag_answer.lower() for kw in fallback_keywords) or len(rag_answer.strip()) < 50)
-            else:
-                # Manual mode
-                show_dataset = answer_type == "Dataset-Based Answer"
-                if show_dataset:
-                    docs = retriever.get_relevant_documents(query)
-                    rag_answer = qa_chain.run(query)
+            # Assistant bubble with subtle badge
+            typ = turn.get("type", "General Reasoning")
+            badge_html = (
+                f'<span class="meta-badge badge-dataset">Dataset-Based</span>'
+                if typ == "Dataset-Based Answer"
+                else f'<span class="meta-badge badge-general">General Reasoning</span>'
+            )
 
-            # --- Display selected answer ---
-            if show_dataset:
-                st.markdown("### 📚 Dataset-Based Answer")
-                st.markdown(f'<div class="response-box">{rag_answer}</div>', unsafe_allow_html=True)
-            else:
-                st.markdown("### 🤖 General Reasoning Answer")
-                st.markdown(f'<div class="response-box">{general_answer}</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="assistant-bubble">🤖 Assistant: {turn["ai"]} {badge_html}</div>', unsafe_allow_html=True)
 
-            # --- Optional: Show top retrieved documents ---
-            if show_dataset and docs:
-                with st.expander("📂 Show Top Retrieved Documents (for debugging)"):
-                    for i, d in enumerate(docs[:3]):
+            # If dataset-based and has docs, show small expander for docs
+            if turn.get("type") == "Dataset-Based Answer" and turn.get("docs"):
+                with st.expander(f"📂 Top Retrieved Documents for message {i+1}"):
+                    for d in turn["docs"][:3]:
                         parts = d.page_content.split("\n")
                         q_text = parts[0].replace("Q: ", "") if len(parts) > 0 else ""
                         a_text = parts[1].replace("A: ", "") if len(parts) > 1 else ""
@@ -129,3 +123,93 @@ if st.button("Ask 💬"):
                             f'<div class="doc-box"><div class="doc-q">Q: {q_text}</div><div class="doc-a">A: {a_text}</div></div>',
                             unsafe_allow_html=True
                         )
+
+# --- INPUT AREA (stays at bottom) ---
+st.markdown("---")
+query = st.text_input(
+    "💭 Type your message here...",
+    key="input_box",
+    placeholder="e.g. How can I improve my communication skills?"
+)
+
+# --- SEND CALLBACK LOGIC ---
+def handle_send():
+    query = st.session_state.input_box.strip()
+    if not query:
+        st.warning("Please enter a message.")
+        return
+
+    with st.spinner("🔍 Thinking and retrieving relevant information..."):
+        # --- Build unified chat history for contextual prompting ---
+        N_keep = 6  # keep last 6 turns
+        history_for_prompt = st.session_state.chat_history[-N_keep:]
+        full_prompt = ""
+        for turn in history_for_prompt:
+            full_prompt += f"User: {turn['user']}\nAI: {turn['ai']}\n"
+        full_prompt += f"User: {query}\nAI:"
+
+        rag_answer, general_answer, docs = "", "", []
+
+        # --- AUTO MODE ---
+        if auto_mode:
+            # Step 1: Try dataset-based (RAG) first
+            rag_result = rag_chain({"question": query})
+            rag_answer = rag_result.get("answer", "")
+            docs = rag_result.get("source_documents", [])
+
+            # Step 2: Evaluate RAG answer quality
+            # Automatically decide whether to show the dataset-based answer or fall back to general reasoning
+            # Explanation:
+            # - any(kw in rag_answer.lower() for kw in fallback_keywords): checks if any "bad" keyword appears
+            # - len(rag_answer.strip()) < 50: checks if the dataset-based answer is too short (likely low quality)
+            # - not (...): inverts the condition — we show dataset answer only if it’s *good enough*            
+            fallback_keywords = ["cannot answer", "no information", "based on the context", "i'm sorry"]
+            rag_too_short = len(rag_answer.strip()) < 50
+            rag_weak = any(kw in rag_answer.lower() for kw in fallback_keywords)
+
+            if rag_weak or rag_too_short:
+                # Step 3: Fallback to general reasoning ONLY if RAG is weak
+                general_response_obj = llm.invoke(full_prompt)
+                general_answer = getattr(general_response_obj, "content", str(general_response_obj))
+                chosen_answer = general_answer
+                chosen_type = "General Reasoning"
+            else:
+                chosen_answer = rag_answer
+                chosen_type = "Dataset-Based Answer"
+
+        # --- MANUAL MODE ---
+        else:
+            if answer_type == "Dataset-Based Answer":
+                rag_result = rag_chain({"question": query})
+                rag_answer = rag_result.get("answer", "")
+                docs = rag_result.get("source_documents", [])
+                chosen_answer = rag_answer
+                chosen_type = "Dataset-Based Answer"
+            else:
+                general_response_obj = llm.invoke(full_prompt)
+                general_answer = getattr(general_response_obj, "content", str(general_response_obj))
+                chosen_answer = general_answer
+                chosen_type = "General Reasoning"
+
+        # --- Append to unified chat history ---
+        st.session_state.chat_history.append({
+            "user": query,
+            "ai": chosen_answer,
+            "type": chosen_type,
+            "docs": docs if chosen_type == "Dataset-Based Answer" else None
+        })
+
+    # ✅ Clear input after sending
+    st.session_state.input_box = ""
+
+
+# --- BUTTONS (use callback to handle sending) ---
+col1, col2 = st.columns([0.2, 0.8])
+with col1:
+    st.button("Send 💬", key="send_button", on_click=handle_send)
+with col2:
+    st.button("Clear Chat", key="clear_button", help="Clears conversation history (not persistent).", on_click=lambda: (
+        st.session_state.chat_history.clear(),
+        st.session_state.update({"input_box": ""}),
+        st.rerun()
+    ))

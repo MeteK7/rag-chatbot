@@ -4,7 +4,8 @@ from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import Chroma
 from langchain.text_splitter import CharacterTextSplitter
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain.chains import RetrievalQA
+from langchain.chains import ConversationalRetrievalChain
+from langchain.memory import ConversationBufferWindowMemory
 from langchain.schema import Document
 from huggingface_hub import login
 from dotenv import load_dotenv
@@ -15,7 +16,7 @@ load_dotenv()
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 HF_TOKEN = os.getenv("HF_TOKEN")
 
-# --- ✅ Authenticate Hugging Face properly ---
+# --- Authenticate Hugging Face ---
 if HF_TOKEN:
     try:
         login(token=HF_TOKEN)
@@ -25,12 +26,14 @@ if HF_TOKEN:
 else:
     print("⚠️ No HF_TOKEN found in .env file. Using public mode.")
 
+
 def build_rag_pipeline():
     """
-    Builds the complete RAG pipeline and returns:
-    - llm: the reasoning LLM for general queries
-    - retriever: vector retriever
-    - qa_chain: RAG QA chain
+    Builds the RAG pipeline with memory.
+    Returns:
+        llm: general reasoning LLM
+        retriever: vector retriever
+        rag_chain: ConversationalRetrievalChain with memory
     """
 
     # --- Load dataset ---
@@ -41,25 +44,11 @@ def build_rag_pipeline():
         print(f"⚠️ Could not load dataset: {e}")
         dataset = load_dataset("mental_health_therapy", split="train[:300]", token=HF_TOKEN)
 
-    # --- Inspect dataset structure ---
-    print("📊 --- DATASET INFO ---")
-    print(f"Number of samples: {len(dataset)}")
-    print(f"Column names: {dataset.column_names}")
-    print("📘 --- SAMPLE ENTRIES ---")
-    for i in range(3):
-        print(f"🧩 Row {i}:")
-        for col in dataset.column_names:
-            print(f"  {col}: {dataset[i][col]}")
-        print()
-
     # --- Convert dataset into Document objects ---
-    # Use question + helpful response (response_j) as text
     texts = [f"Q: {d['instruction']}\nA: {d['input']}" for d in dataset if 'input' in d and d['input'].strip()]
-    
     if not texts:
         raise ValueError("No valid text found in dataset to create embeddings!")
 
-    # Split into chunks
     splitter = CharacterTextSplitter(chunk_size=500, chunk_overlap=100)
     docs = [Document(page_content=t) for t in texts]
     split_docs = splitter.split_documents(docs)
@@ -95,8 +84,20 @@ def build_rag_pipeline():
     #It “thinks” and generates a coherent answer. This is the brain that actually reads the retrieved text and formulates a natural-language answer.
     llm = ChatGoogleGenerativeAI(model="models/gemini-2.5-pro", google_api_key=GOOGLE_API_KEY)
 
-    # --- RAG QA chain ---
-    # Create a RetrievalQA chain that ties the retriever and the LLM together. We are calling the retriever to get the top relevant documents for the "query" send in the code "qa_chain.run(query)" in app.py, call the LLM to generate the final, context-aware answer.
-    qa_chain = RetrievalQA.from_chain_type(llm=llm, retriever=retriever)
+    # --- Memory for RAG ---
+    memory = ConversationBufferWindowMemory(
+        k=3,
+        memory_key="chat_history",
+        return_messages=True,
+        output_key="answer"  # ✅ tells memory which field to store
+    )
 
-    return llm, retriever, qa_chain
+    # --- RAG QA chain ---
+    rag_chain = ConversationalRetrievalChain.from_llm(
+        llm=llm,
+        retriever=retriever,
+        memory=memory,
+        return_source_documents=True
+    )
+
+    return llm, retriever, rag_chain
