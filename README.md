@@ -5,14 +5,17 @@
 It provides **reflective and supportive guidance** on mental wellness, personal growth, and self-improvement; all powered by real-world therapy datasets.
 
 **⚠️ Note:** MoodMate is **not a licensed therapist.** It offers informational and reflective guidance only.
-
-This application blends **retrieval-based reasoning** with **generative capabilities**, ensuring that responses are both **factual** and **insightful** — powered by the synergy of **LangChain**, **Hugging Face**, and **Gemini**.
 ---
 
 ## 🌟 Deploy Link
 
-**DEPLOY LINK:** [MoodMate](https://huggingface.co/spaces/MeteKaba/MoodMate)
+**Here it is:** [MoodMate](https://huggingface.co/spaces/MeteKaba/MoodMate)
 ---
+
+### 📝 How to Use
+
+![MoodMate Auto-Mode Usage](assets/auto-mode.gif)
+![MoodMate Manual-Mode Usage](assets/manual-mode.gif)
 
 ## 🌟 Key Highlights
 
