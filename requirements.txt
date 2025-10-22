@@ -1,14 +1,20 @@
-# Streamlit frontend
+# Streamlit
 streamlit>=1.36
+
+# Extra Streamlit goodies
 streamlit-extras>=0.3.6
+
+# Environment variables
 python-dotenv>=1.0.1
 
-# LangChain 1.x
-langchain==1.0.2
-langchain-google-genai==2.0.0
+# LangChain core
+langchain>=2.0.0,<3.0.0
 
-# Vector store (if you use FAISS)
-faiss-cpu==1.7.4
+# Google Gemini connector for LangChain
+langchain-google-genai>=2.0.0,<3.0.0
 
-# Optional utilities
+# Vector DB
+faiss-cpu>=1.7.4
+
+# Rich logging
 rich==14.2.0
