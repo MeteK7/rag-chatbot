@@ -4,7 +4,7 @@ from streamlit_extras.add_vertical_space import add_vertical_space
 
 # --- PAGE CONFIG ---
 st.set_page_config(
-    page_title="💬 Personalized Lifecycle Companion",
+    page_title="💬 MoodMate",
     page_icon="💫",
     layout="centered",
 )

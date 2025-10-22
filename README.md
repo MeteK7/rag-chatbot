@@ -11,7 +11,7 @@ This application blends **retrieval-based reasoning** with **generative capabili
 
 ## 🌟 Deploy Link
 
-**DEPLOY LINK:** [github.com/MeteK7](https://github.com/MeteK7)
+**DEPLOY LINK:** [MoodMate](https://huggingface.co/spaces/MeteKaba/MoodMate)
 ---
 
 ## 🌟 Key Highlights
