@@ -4,18 +4,24 @@
 
 It provides **reflective and supportive guidance** on mental wellness, personal growth, and self-improvement; all powered by real-world therapy datasets.
 
-**⚠️ Note:** MoodMate is **not a licensed therapist.** It offers informational and reflective guidance only.
+**⚠️ Note:** *MoodMate is not a licensed therapist; it provides informational and reflective guidance only.*
+
 ---
 
-## 🌟 Deploy Link
+## 🌟 Deploy Link:* [MoodMate](https://huggingface.co/spaces/MeteKaba/MoodMate)
 
-**Here it is:** [MoodMate](https://huggingface.co/spaces/MeteKaba/MoodMate)
 ---
 
 ### 📝 How to Use
 
-![MoodMate Auto-Mode Usage](assets/auto-mode.gif)
-![MoodMate Manual-Mode Usage](assets/manual-mode.gif)
+<p align="center">
+  <img src="assets/auto-mode.gif" alt="MoodMate Auto-Mode Usage" width="400"/>
+  &nbsp;&nbsp;&nbsp;
+  <img src="assets/manual-mode.gif" alt="MoodMate Manual-Mode Usage" width="400"/>
+</p>
+
+<p align="center"><em>Left: Automatic Mode | Right: Manual Mode</em></p>
+
 
 ## 🌟 Key Highlights
 
