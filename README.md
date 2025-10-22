@@ -8,7 +8,7 @@ It provides **reflective and supportive guidance** on mental wellness, personal 
 
 ---
 
-## 🌟 Deploy Link:* [MoodMate](https://huggingface.co/spaces/MeteKaba/MoodMate)
+## 🌟 Deploy Link: [MoodMate](https://huggingface.co/spaces/MeteKaba/MoodMate)
 
 ---
 
@@ -20,8 +20,7 @@ It provides **reflective and supportive guidance** on mental wellness, personal 
   <img src="assets/manual-mode.gif" alt="MoodMate Manual-Mode Usage" width="400"/>
 </p>
 
-<p align="center"><em>Left: Automatic Mode | Right: Manual Mode</em></p>
-
+<p align="center"><em><strong>Left:</strong> Automatic Mode | <strong>Right:</strong> Manual Mode</em></p>
 
 ## 🌟 Key Highlights
 
