@@ -1,15 +1,17 @@
-# 💬 Personalized Lifecycle Companion
+# 💬 MoodMate
 
-**Personalized Lifecycle Companion** is an AI-powered assistant built on a **Retrieval Augmented Generation (RAG)** architecture and **Google Gemini**.  
-It acts as a **lifelong companion** that helps users explore topics related to **personal, social, and business growth**, providing intelligent, context-aware answers drawn from real-world datasets.
+**MoodMate** is an AI-powered assistant built on a **Retrieval Augmented Generation (RAG)** architecture and **Google Gemini**.  
+
+It provides **reflective and supportive guidance** on mental wellness, personal growth, and self-improvement; all powered by real-world therapy datasets.
+
+**⚠️ Note:** MoodMate is **not a licensed therapist.** It offers informational and reflective guidance only.
 
 This application blends **retrieval-based reasoning** with **generative capabilities**, ensuring that responses are both **factual** and **insightful** — powered by the synergy of **LangChain**, **Hugging Face**, and **Gemini**.
-
 ---
 
 ## 🌟 Deploy Link
 
-**SAMPLE DEPLOY LINK:** [github.com/MeteK7](https://github.com/MeteK7)
+**DEPLOY LINK:** [github.com/MeteK7](https://github.com/MeteK7)
 ---
 
 ## 🌟 Key Highlights
@@ -25,14 +27,14 @@ This application blends **retrieval-based reasoning** with **generative capabili
 
 ## 🧩 How It Works
 
-**Personalized Lifecycle Companion** implements a full **RAG pipeline** under the hood:
+**MoodMate** implements a full **RAG pipeline** under the hood:
 
 1. **Dataset Loading:** Fetches the `fadodr/mental_health_therapy` dataset from Hugging Face  
 2. **Text Processing:** Cleans and splits data into retrievable text chunks  
 3. **Vector Embedding:** Converts text into semantic embeddings with `sentence-transformers/all-MiniLM-L6-v2`  
 4. **Vector Storage:** Stores embeddings locally using **Chroma DB**  
 5. **Retriever:** Finds the most relevant context for your query  
-6. **Gemini LLM (models/gemini-2.5-pro):** Generates high-quality responses using retrieved context  
+6. **Gemini LLM (models/gemini-2.5-flash):** Generates high-quality responses using retrieved context  
 7. **Streamlit Frontend:** Displays results beautifully with toggles, options, and expandable document previews  
 
 ---
@@ -43,7 +45,7 @@ This application blends **retrieval-based reasoning** with **generative capabili
 |-----------|--------------------|
 | **Frontend / UI** | Streamlit, streamlit-extras |
 | **Backend / Logic** | Python, LangChain |
-| **LLM** | Google Gemini 2.5 Pro |
+| **LLM** | Google Gemini 2.5 Flash |
 | **Embeddings** | Hugging Face (`all-MiniLM-L6-v2`) |
 | **Vector Database** | Chroma |
 | **Dataset** | fadodr/mental_health_therapy |
@@ -55,8 +57,8 @@ This application blends **retrieval-based reasoning** with **generative capabili
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/<your-username>/personalized-lifecycle-companion.git
-cd personalized-lifecycle-companion
+git clone https://github.com/MeteK7/rag-chatbot
+cd moodmate
 ```
 
 ### 2. Virtual Environment Setup
@@ -72,18 +74,6 @@ source venv/bin/activate     # on Mac/Linux
 ### 3. Install Dependencies
 ```bash
 pip install -r requirements.txt
-```
-
-After activating the venv, also install:
-```bash
-pip install streamlit-extras
-```
-
-Your command prompt should look like:
-```
-(venv) PS C:\Projects\rag-chatbot> pip install streamlit-extras
-```
-
 ---
 
 ## 🔐 Setup API Keys
@@ -137,7 +127,7 @@ personalized-lifecycle-companion/
 
 ## 🧾 Example Queries
 
-- “How can I improve my emotional intelligence?”  
+-“What are ways to practice self-care daily?”
 - “What’s a good way to manage anxiety before public speaking?”  
 - “How can I lead my team more effectively?”  
 

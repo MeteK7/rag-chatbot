@@ -39,7 +39,6 @@ st.markdown("""
     }
     .badge-dataset { background: #fff6ea; color: #b36b00; border: 1px solid #f0e68c; }
     .badge-general { background: #eefcf3; color: #0a7f53; border: 1px solid #bfead4; }
-    .chat-area { max-height: 60vh; overflow-y: auto; padding-right: 8px; }
     .doc-box { background-color: #fffbe6; padding: 0.6em 0.8em; border-radius: 8px; border: 1px solid #f0e68c; margin-bottom: 0.5em; }
     .doc-q { font-weight: 600; color: #333; }
     .doc-a { color: #555; }
@@ -77,7 +76,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # --- HEADER ---
-st.markdown('<div class="main-title">💬 Personalized Lifecycle Companion</div>', unsafe_allow_html=True)
+st.markdown('<div class="main-title">💬 MoodMate</div>', unsafe_allow_html=True)
 st.markdown('<div class="subtitle">Ask anything about personal, social, or business growth — powered by RAG + Gemini</div>', unsafe_allow_html=True)
 
 add_vertical_space(2)
@@ -111,13 +110,6 @@ if "chat_history" not in st.session_state:
 # Ensure input_box key exists so it persists across runs
 if "input_box" not in st.session_state:
     st.session_state.input_box = ""
-
-# --- CLEAR CHAT BUTTON HANDLING ---
-# This must come BEFORE the text_input widget is created, to avoid modifying session_state after instantiation.
-if st.button("🧹 Clear Chat", help="Clears conversation history (not persistent)."):
-    st.session_state.chat_history = []
-    st.session_state["input_box"] = ""  # safe reset before widget renders
-    st.experimental_rerun()
 
 # --- LAYOUT: chat area + input at bottom ---
 chat_col = st.container()
@@ -163,7 +155,7 @@ def handle_send():
 
     with st.spinner("🔍 Thinking and retrieving relevant information..."):
         # --- Build unified chat history for contextual prompting ---
-        N_keep = 6  # keep last 6 turns
+        N_keep = 6  # Keep last 6 turns for context
         history_for_prompt = st.session_state.chat_history[-N_keep:]
         full_prompt = ""
         for turn in history_for_prompt:
@@ -191,6 +183,7 @@ def handle_send():
 
             if rag_weak or rag_too_short:
                 # Step 3: Fallback to general reasoning ONLY if RAG is weak
+                # Use full_prompt (last N_keep turns + current query) to generate answer with LLM
                 general_response_obj = llm.invoke(full_prompt)
                 general_answer = getattr(general_response_obj, "content", str(general_response_obj))
                 chosen_answer = general_answer
