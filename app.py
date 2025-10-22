@@ -43,6 +43,36 @@ st.markdown("""
     .doc-box { background-color: #fffbe6; padding: 0.6em 0.8em; border-radius: 8px; border: 1px solid #f0e68c; margin-bottom: 0.5em; }
     .doc-q { font-weight: 600; color: #333; }
     .doc-a { color: #555; }
+
+    /* Make chat area scrollable and avoid hiding under input */
+    .chat-area {
+        max-height: 70vh;
+        overflow-y: auto;
+        padding-right: 8px;
+        padding-bottom: 120px; /* Space for input bar */
+    }
+
+    /* Fix the input container at the bottom */
+    .input-container {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background-color: #ffffff;
+        padding: 1rem 2rem;
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+        z-index: 999;
+    }
+
+    /* Optional: make buttons line up neatly */
+    .stButton button {
+        height: 2.5em;
+    }
+
+    /* Hide Streamlit footer and hamburger for cleaner look */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
 </style>
 """, unsafe_allow_html=True)
 
@@ -124,14 +154,6 @@ with chat_col:
                             unsafe_allow_html=True
                         )
 
-# --- INPUT AREA (stays at bottom) ---
-st.markdown("---")
-query = st.text_input(
-    "💭 Type your message here...",
-    key="input_box",
-    placeholder="e.g. How can I improve my communication skills?"
-)
-
 # --- SEND CALLBACK LOGIC ---
 def handle_send():
     query = st.session_state.input_box.strip()
@@ -202,14 +224,25 @@ def handle_send():
     # ✅ Clear input after sending
     st.session_state.input_box = ""
 
+# --- INPUT AREA (stays at bottom) ---
+# --- FIXED INPUT BAR ---
+st.markdown('<div class="input-container">', unsafe_allow_html=True)
 
-# --- BUTTONS (use callback to handle sending) ---
+query = st.text_input(
+    "💭 Type your message here...",
+    key="input_box",
+    placeholder="e.g. How can I improve my communication skills?",
+    label_visibility="collapsed"
+)
+
 col1, col2 = st.columns([0.2, 0.8])
 with col1:
     st.button("Send 💬", key="send_button", on_click=handle_send)
 with col2:
-    st.button("Clear Chat", key="clear_button", help="Clears conversation history (not persistent).", on_click=lambda: (
+    st.button("🧹 Clear Chat", key="clear_button", help="Clears conversation history (not persistent).", on_click=lambda: (
         st.session_state.chat_history.clear(),
         st.session_state.update({"input_box": ""}),
         st.rerun()
     ))
+
+st.markdown('</div>', unsafe_allow_html=True)
