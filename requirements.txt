@@ -1,20 +1,26 @@
-# Streamlit
+# --- Core App ---
 streamlit>=1.36
-
-# Extra Streamlit goodies
 streamlit-extras>=0.3.6
-
-# Environment variables
 python-dotenv>=1.0.1
 
-# LangChain core
-langchain>=2.0.0,<3.0.0
+# --- LangChain & LangGraph Ecosystem ---
+langchain>=1.0.1
+langchain-core>=1.0.1
+langchain-community>=1.0.1
+langchain-text-splitters>=0.2.0
+langchain-google-genai>=1.0.3
+langgraph>=0.2.21
 
-# Google Gemini connector for LangChain
-langchain-google-genai>=2.0.0,<3.0.0
+# --- Vectorization + Retrieval ---
+sentence-transformers>=2.2.2
+chromadb>=0.5.3
+faiss-cpu>=1.8.0
 
-# Vector DB
-faiss-cpu>=1.7.4
+# --- Datasets + Hugging Face ---
+datasets>=3.0.0
+huggingface-hub>=0.23.2
 
-# Rich logging
-rich==14.2.0
+# --- Misc Utilities ---
+tqdm>=4.66.5
+numpy>=1.26.4
+pandas>=2.2.2
