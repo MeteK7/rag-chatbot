@@ -177,9 +177,15 @@ def handle_send():
             # - any(kw in rag_answer.lower() for kw in fallback_keywords): checks if any "bad" keyword appears
             # - len(rag_answer.strip()) < 50: checks if the dataset-based answer is too short (likely low quality)
             # - not (...): inverts the condition — we show dataset answer only if it’s *good enough*            
-            fallback_keywords = ["cannot answer", "no information", "based on the context", "i'm sorry"]
+            fallback_keywords = [
+                "cannot answer", "no information", "based on the context", "i'm sorry",
+                "not a mental health question", "cannot provide", "not relevant", 
+                "no relevant", "not a question"
+            ]
             rag_too_short = len(rag_answer.strip()) < 50
-            rag_weak = any(kw in rag_answer.lower() for kw in fallback_keywords)
+            rag_irrelevant = any(kw in rag_answer.lower() for kw in fallback_keywords)
+            rag_generic = rag_answer.lower().startswith(("the provided context", "context does not"))
+            rag_weak = rag_too_short or rag_irrelevant or rag_generic
 
             if rag_weak or rag_too_short:
                 # Step 3: Fallback to general reasoning ONLY if RAG is weak
