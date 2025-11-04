@@ -59,9 +59,20 @@ def build_rag_pipeline():
     docs = [Document(page_content=t) for t in texts]
     split_docs = splitter.split_documents(docs)
 
-    # --- Embeddings + Chroma DB ---
+    # --- Embeddings + Vector Store Setup ---
+    # Embeddings are high-dimensional numerical vector representations of text.
+    # They capture the semantic meaning of each text chunk, allowing for similarity search.
+
+    # Step 1: Initialize the embedding model.
+    # The model below ("sentence-transformers/all-MiniLM-L6-v2") will later be used to convert text into vectors.
     embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+
+    # Step 2: Perform the embedding using split_docs and store in a vector database called Chroma DB.
+    # The embeddings are stored in a vector database (Chroma) to enable efficient semantic retrieval.
+    # Each document chunk is indexed by its embedding, allowing queries to find similar content by meaning.
     vector_db = Chroma.from_documents(split_docs, embeddings, persist_directory="chroma_db")
+
+    # The retriever interface wraps the vector store, returning the top-k most semantically similar chunks.
     retriever = vector_db.as_retriever(search_kwargs={"k": 3})
 
     # --- LLM ---
